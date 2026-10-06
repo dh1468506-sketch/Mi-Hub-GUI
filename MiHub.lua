@@ -1,19 +1,15 @@
 -- ==========================================
--- MI HUB PERSONALIZADO (Sin librerías)
+-- MI HUB PERSONALIZADO CON AVATARES
 -- ==========================================
 
--- Servicios
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
-local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- URL de tu index.json (con anti-caché para móvil)
 local INDEX_URL = "https://raw.githubusercontent.com/dh1468506-sketch/Mi-hub-Scripts/main/index.json?t=" .. os.time()
 
--- Colores del tema
 local COLOR_FONDO = Color3.fromRGB(20, 20, 25)
 local COLOR_PANEL = Color3.fromRGB(30, 30, 38)
 local COLOR_ACENTO = Color3.fromRGB(138, 43, 226)
@@ -21,13 +17,34 @@ local COLOR_TEXTO = Color3.fromRGB(255, 255, 255)
 local COLOR_TEXTO_GRIS = Color3.fromRGB(170, 170, 180)
 local COLOR_HOVER = Color3.fromRGB(45, 45, 55)
 
--- ScreenGui principal
+-- Cache de avatares para no pedir el mismo dos veces
+local CacheAvatares = {}
+
+-- Función para obtener el avatar desde la API de Roblox
+local function ObtenerAvatar(userId)
+    if not userId then return nil end
+    if CacheAvatares[userId] then return CacheAvatares[userId] end
+    
+    local url = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" .. tostring(userId) .. "&size=150x150&format=Png&isCircular=true"
+    local exito, resultado = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet(url))
+    end)
+    
+    if exito and resultado and resultado.data and resultado.data[1] then
+        local imageUrl = resultado.data[1].imageUrl
+        CacheAvatares[userId] = imageUrl
+        return imageUrl
+    end
+    return nil
+end
+
+-- ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "MiHubGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.DisplayOrder = 999999
 ScreenGui.IgnoreGuiInset = true
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling -- <- LA LÍNEA MÁGICA
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = PlayerGui
 
 -- Botón flotante
@@ -62,7 +79,7 @@ Ventana.BorderSizePixel = 0
 Ventana.Visible = false
 Ventana.Active = true
 Ventana.Draggable = true
-Ventana.ZIndex = 1 -- Cambiado de 50 a 1
+Ventana.ZIndex = 1
 Ventana.Parent = ScreenGui
 
 local UICornerVentana = Instance.new("UICorner")
@@ -79,7 +96,7 @@ local BarraSuperior = Instance.new("Frame")
 BarraSuperior.Size = UDim2.new(1, 0, 0, 45)
 BarraSuperior.BackgroundColor3 = COLOR_PANEL
 BarraSuperior.BorderSizePixel = 0
-BarraSuperior.ZIndex = 2 -- Mayor que el fondo
+BarraSuperior.ZIndex = 2
 BarraSuperior.Parent = Ventana
 
 local UICornerBarra = Instance.new("UICorner")
@@ -196,7 +213,7 @@ UIPaddingArea.PaddingLeft = UDim.new(0, 10)
 UIPaddingArea.PaddingRight = UDim.new(0, 10)
 UIPaddingArea.Parent = AreaScripts
 
--- Función de notificaciones
+-- Notificaciones
 local function Notificar(titulo, mensaje, color)
     local Notif = Instance.new("Frame")
     Notif.Size = UDim2.new(0, 280, 0, 70)
@@ -255,7 +272,6 @@ local function Notificar(titulo, mensaje, color)
     end)
 end
 
--- Limpiar área de scripts
 local function LimpiarAreaScripts()
     for _, hijo in ipairs(AreaScripts:GetChildren()) do
         if hijo:IsA("TextButton") then
@@ -265,10 +281,10 @@ local function LimpiarAreaScripts()
     AreaScripts.CanvasSize = UDim2.new(0, 0, 0, 0)
 end
 
--- Crear botón de script
+-- Crear botón de script CON AVATAR
 local function CrearBotonScript(info, layoutOrder)
     local Boton = Instance.new("TextButton")
-    Boton.Size = UDim2.new(1, -20, 0, 50)
+    Boton.Size = UDim2.new(1, -20, 0, 65)
     Boton.BackgroundColor3 = COLOR_PANEL
     Boton.BorderSizePixel = 0
     Boton.Text = ""
@@ -280,9 +296,34 @@ local function CrearBotonScript(info, layoutOrder)
     UICornerB.CornerRadius = UDim.new(0, 8)
     UICornerB.Parent = Boton
     
+    -- AVATAR (Foto de Roblox)
+    local Avatar = Instance.new("ImageLabel")
+    Avatar.Size = UDim2.new(0, 45, 0, 45)
+    Avatar.Position = UDim2.new(0, 10, 0, 10)
+    Avatar.BackgroundColor3 = COLOR_FONDO
+    Avatar.BorderSizePixel = 0
+    Avatar.Image = "rbxassetid://0" -- Imagen por defecto
+    Avatar.ZIndex = 4
+    Avatar.Parent = Boton
+    
+    local UICornerAvatar = Instance.new("UICorner")
+    UICornerAvatar.CornerRadius = UDim.new(1, 0)
+    UICornerAvatar.Parent = Avatar
+    
+    -- Cargar el avatar desde la API de Roblox
+    if info.autor_userid then
+        spawn(function()
+            local urlAvatar = ObtenerAvatar(info.autor_userid)
+            if urlAvatar then
+                Avatar.Image = urlAvatar
+            end
+        end)
+    end
+    
+    -- Nombre del script
     local NombreScript = Instance.new("TextLabel")
-    NombreScript.Size = UDim2.new(1, -20, 0, 25)
-    NombreScript.Position = UDim2.new(0, 15, 0, 5)
+    NombreScript.Size = UDim2.new(1, -70, 0, 20)
+    NombreScript.Position = UDim2.new(0, 65, 0, 8)
     NombreScript.BackgroundTransparency = 1
     NombreScript.Text = info.nombre
     NombreScript.TextColor3 = COLOR_TEXTO
@@ -292,11 +333,25 @@ local function CrearBotonScript(info, layoutOrder)
     NombreScript.ZIndex = 4
     NombreScript.Parent = Boton
     
+    -- Autor (nombre de Roblox)
+    local AutorScript = Instance.new("TextLabel")
+    AutorScript.Size = UDim2.new(1, -70, 0, 15)
+    AutorScript.Position = UDim2.new(0, 65, 0, 28)
+    AutorScript.BackgroundTransparency = 1
+    AutorScript.Text = "👤 " .. (info.autor_display or "Anónimo")
+    AutorScript.TextColor3 = COLOR_ACENTO
+    AutorScript.TextSize = 12
+    AutorScript.Font = Enum.Font.GothamBold
+    AutorScript.TextXAlignment = Enum.TextXAlignment.Left
+    AutorScript.ZIndex = 4
+    AutorScript.Parent = Boton
+    
+    -- Juego
     local JuegoScript = Instance.new("TextLabel")
-    JuegoScript.Size = UDim2.new(1, -20, 0, 15)
-    JuegoScript.Position = UDim2.new(0, 15, 0, 28)
+    JuegoScript.Size = UDim2.new(1, -70, 0, 15)
+    JuegoScript.Position = UDim2.new(0, 65, 0, 45)
     JuegoScript.BackgroundTransparency = 1
-    JuegoScript.Text = info.juego or "General"
+    JuegoScript.Text = "🎮 " .. (info.juego or "General")
     JuegoScript.TextColor3 = COLOR_TEXTO_GRIS
     JuegoScript.TextSize = 11
     JuegoScript.Font = Enum.Font.Gotham
