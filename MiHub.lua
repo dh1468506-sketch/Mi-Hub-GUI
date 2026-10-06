@@ -27,6 +27,7 @@ ScreenGui.Name = "MiHubGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.DisplayOrder = 999999
 ScreenGui.IgnoreGuiInset = true
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling -- <- LA LÍNEA MÁGICA
 ScreenGui.Parent = PlayerGui
 
 -- Botón flotante
@@ -61,7 +62,7 @@ Ventana.BorderSizePixel = 0
 Ventana.Visible = false
 Ventana.Active = true
 Ventana.Draggable = true
-Ventana.ZIndex = 50
+Ventana.ZIndex = 1 -- Cambiado de 50 a 1
 Ventana.Parent = ScreenGui
 
 local UICornerVentana = Instance.new("UICorner")
@@ -78,6 +79,7 @@ local BarraSuperior = Instance.new("Frame")
 BarraSuperior.Size = UDim2.new(1, 0, 0, 45)
 BarraSuperior.BackgroundColor3 = COLOR_PANEL
 BarraSuperior.BorderSizePixel = 0
+BarraSuperior.ZIndex = 2 -- Mayor que el fondo
 BarraSuperior.Parent = Ventana
 
 local UICornerBarra = Instance.new("UICorner")
@@ -86,13 +88,14 @@ UICornerBarra.Parent = BarraSuperior
 
 local Titulo = Instance.new("TextLabel")
 Titulo.Size = UDim2.new(0, 300, 1, 0)
-Titulo.Position = UDim2.new(0, 20, 0, 0)
+Titulo.Position = UDim2.new(0, 20, 0, -5)
 Titulo.BackgroundTransparency = 1
 Titulo.Text = "MI HUB DE SCRIPTS"
 Titulo.TextColor3 = COLOR_TEXTO
 Titulo.TextSize = 18
 Titulo.Font = Enum.Font.GothamBold
 Titulo.TextXAlignment = Enum.TextXAlignment.Left
+Titulo.ZIndex = 3
 Titulo.Parent = BarraSuperior
 
 local BotonCerrar = Instance.new("TextButton")
@@ -104,6 +107,7 @@ BotonCerrar.Text = "X"
 BotonCerrar.TextColor3 = COLOR_TEXTO
 BotonCerrar.TextSize = 14
 BotonCerrar.Font = Enum.Font.GothamBold
+BotonCerrar.ZIndex = 3
 BotonCerrar.Parent = BarraSuperior
 
 local UICornerCerrar = Instance.new("UICorner")
@@ -116,6 +120,7 @@ BarraBusqueda.Size = UDim2.new(1, -40, 0, 35)
 BarraBusqueda.Position = UDim2.new(0, 20, 0, 55)
 BarraBusqueda.BackgroundColor3 = COLOR_PANEL
 BarraBusqueda.BorderSizePixel = 0
+BarraBusqueda.ZIndex = 2
 BarraBusqueda.Parent = Ventana
 
 local UICornerBusqueda = Instance.new("UICorner")
@@ -134,6 +139,7 @@ CajaBusqueda.TextSize = 14
 CajaBusqueda.Font = Enum.Font.Gotham
 CajaBusqueda.TextXAlignment = Enum.TextXAlignment.Left
 CajaBusqueda.ClearTextOnFocus = false
+CajaBusqueda.ZIndex = 3
 CajaBusqueda.Parent = BarraBusqueda
 
 -- Barra lateral
@@ -145,6 +151,7 @@ BarraLateral.BorderSizePixel = 0
 BarraLateral.ScrollBarThickness = 4
 BarraLateral.ScrollBarImageColor3 = COLOR_ACENTO
 BarraLateral.CanvasSize = UDim2.new(0, 0, 0, 0)
+BarraLateral.ZIndex = 2
 BarraLateral.Parent = Ventana
 
 local UICornerLateral = Instance.new("UICorner")
@@ -171,6 +178,7 @@ AreaScripts.BorderSizePixel = 0
 AreaScripts.ScrollBarThickness = 4
 AreaScripts.ScrollBarImageColor3 = COLOR_ACENTO
 AreaScripts.CanvasSize = UDim2.new(0, 0, 0, 0)
+AreaScripts.ZIndex = 2
 AreaScripts.Parent = Ventana
 
 local UICornerArea = Instance.new("UICorner")
@@ -221,6 +229,7 @@ local function Notificar(titulo, mensaje, color)
     TituloNotif.TextSize = 14
     TituloNotif.Font = Enum.Font.GothamBold
     TituloNotif.TextXAlignment = Enum.TextXAlignment.Left
+    TituloNotif.ZIndex = 201
     TituloNotif.Parent = Notif
     
     local MensajeNotif = Instance.new("TextLabel")
@@ -233,6 +242,7 @@ local function Notificar(titulo, mensaje, color)
     MensajeNotif.Font = Enum.Font.Gotham
     MensajeNotif.TextXAlignment = Enum.TextXAlignment.Left
     MensajeNotif.TextWrapped = true
+    MensajeNotif.ZIndex = 201
     MensajeNotif.Parent = Notif
     
     Notif.Position = UDim2.new(1, 100, 0, 100)
@@ -263,6 +273,7 @@ local function CrearBotonScript(info, layoutOrder)
     Boton.BorderSizePixel = 0
     Boton.Text = ""
     Boton.LayoutOrder = layoutOrder
+    Boton.ZIndex = 3
     Boton.Parent = AreaScripts
     
     local UICornerB = Instance.new("UICorner")
@@ -278,6 +289,7 @@ local function CrearBotonScript(info, layoutOrder)
     NombreScript.TextSize = 15
     NombreScript.Font = Enum.Font.GothamBold
     NombreScript.TextXAlignment = Enum.TextXAlignment.Left
+    NombreScript.ZIndex = 4
     NombreScript.Parent = Boton
     
     local JuegoScript = Instance.new("TextLabel")
@@ -289,6 +301,7 @@ local function CrearBotonScript(info, layoutOrder)
     JuegoScript.TextSize = 11
     JuegoScript.Font = Enum.Font.Gotham
     JuegoScript.TextXAlignment = Enum.TextXAlignment.Left
+    JuegoScript.ZIndex = 4
     JuegoScript.Parent = Boton
     
     Boton.MouseEnter:Connect(function()
@@ -322,6 +335,7 @@ local function CrearBotonJuego(nombreJuego, listaScripts, layoutOrder)
     Boton.TextSize = 13
     Boton.Font = Enum.Font.Gotham
     Boton.LayoutOrder = layoutOrder
+    Boton.ZIndex = 3
     Boton.Parent = BarraLateral
     
     local UICornerBJ = Instance.new("UICorner")
