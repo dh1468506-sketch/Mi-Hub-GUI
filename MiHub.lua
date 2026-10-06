@@ -10,8 +10,8 @@ local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- URL de tu index.json
-local INDEX_URL = "https://raw.githubusercontent.com/dh1468506-sketch/Mi-hub-Scripts/main/index.json"
+-- URL de tu index.json (con anti-caché para móvil)
+local INDEX_URL = "https://raw.githubusercontent.com/dh1468506-sketch/Mi-hub-Scripts/main/index.json?t=" .. os.time()
 
 -- Colores del tema
 local COLOR_FONDO = Color3.fromRGB(20, 20, 25)
